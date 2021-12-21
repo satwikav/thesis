@@ -266,11 +266,35 @@ forvalues j = 1/16 {
 
 
 
+/////////OUTCOME - Assets
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/010_bihs_r3_male_mod_b1.dta",clear
+keep a01 mid b1_01 b1_02 b1_03
+keep if b1_03 == 3 |b1_03 == 5|b1_03 == 4|b1_03 == 8 |b1_03 ==12
+save "/Users/satwikav/Documents/GitHub/thesis/data/hh_info.dta",replace 
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/015_bihs_r3_male_mod_d1.dta", clear
+keep a01 d1_02 d1_03 d1_04 d1_06_a d1_06_b d1_06_c d1_09 d1_11
+drop if d1_03 == 2
+drop d1_03
+merge m:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/hh_info.dta"
+keep if d1_06_a == mid | d1_06_b == mid | d1_06_c == mid
+drop if mid == .
 
-
-
-
-
+/////////OUTCOME - Education
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/010_bihs_r3_male_mod_b1.dta",clear
+keep a01 mid b1_01 b1_02 b1_03
+save "/Users/satwikav/Documents/GitHub/thesis/data/mem_info.dta",replace 
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/011_bihs_r3_male_mod_b2.dta", clear
+keep a01 mid_b2 b2_01 b2_08b b2_08a b2_08c b2_08d
+drop if mid_b2 == 99
+drop if b2_08a == .
+rename mid_b2 mid
+merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/mem_info.dta"
+/////////OUTCOME - Training
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/014_bihs_r3_male_mod_c3.dta", clear
+keep a01 mid_c3 c3_01 c3_08
+drop if c3_01 == 2
+rename mid_c3 mid
+merge m:m a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/mem_info.dta"
 
 
 
@@ -289,6 +313,11 @@ forvalues j = 1/16 {
 use "/Users/satwikav/Documents/GitHub/thesis/data/1.dta", clear
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/2.dta"
 drop _merge 
+merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/assets.dta"
+drop _merge 
+
+
+
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/24.dta"
 drop _merge 
 
