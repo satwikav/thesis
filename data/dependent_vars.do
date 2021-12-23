@@ -1,6 +1,6 @@
 /////////HHH INFO
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/009_bihs_r3_male_mod_a.dta",clear
-keep a01 res_id_a div_name a13 a23 a24 a25 a26
+keep a01 res_id_a div_name a13 a23 a24 a25 a26 a16_1_yy
 rename res_id_a mid
 save "/Users/satwikav/Documents/GitHub/thesis/data/1.dta",replace
 /////////HH MEMBER INFO
@@ -165,7 +165,7 @@ rename d1_06_ mid
 save "/Users/satwikav/Documents/GitHub/thesis/data/6.dta",replace 
 /////////OUTCOME - Education
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/011_bihs_r3_male_mod_b2.dta", clear
-keep a01 mid_b2 b2_01 b2_08b b2_08a b2_08c b2_08d
+keep a01 mid_b2 b2_01 b2_08b b2_08a b2_08c b2_08d b2_03 b2_04 b2_10 b2_13 b2_11 b2_08
 rename mid_b2 mid
 save "/Users/satwikav/Documents/GitHub/thesis/data/7.dta",replace 
 /////////OUTCOME - Training
@@ -173,17 +173,44 @@ use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/014_bihs_r3_male_mo
 keep a01 mid_c3 c3_01 c3_08
 rename mid_c3 mid
 save "/Users/satwikav/Documents/GitHub/thesis/data/8.dta",replace 
+/////////OUTCOME - grade
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/010_bihs_r3_male_mod_b1.dta",clear
+keep a01 mid b1_02 b1_08 
+keep if b1_02 <= 17 & b1_02 >= 6
+gen year_edu = b1_08
+replace year_edu = 0 if b1_08 == 66
+replace year_edu = 0 if b1_08 == 99
+replace year_edu = 10 if b1_08 == 22
+replace year_edu = 11 if b1_08 == 33
+replace year_edu = . if b1_08 == 67
+replace year_edu = . if b1_08 == 75
+replace year_edu = . if b1_08 == 76
+gen id = .
+replace id = 1 if b1_02 == 6 | b1_02 == 7 | b1_02 == 8 | b1_02 == 9 | b1_02 == 10
+replace id = 2 if b1_02 == 11 | b1_02 == 12 | b1_02 == 13 
+replace id = 3 if b1_02 == 14 | b1_02 == 15 
+replace id = 4 if b1_02 == 16 | b1_02 == 17
+bysort id: egen avg_edu = mean(year_edu)
+gen dev_edu = year_edu - avg_edu
+keep a01 mid year_edu dev_edu
+save "/Users/satwikav/Documents/GitHub/thesis/data/9.dta",replace 
+
+
+
+
+
+
+
 /////////MERGE
 use "/Users/satwikav/Documents/GitHub/thesis/data/1.dta", clear
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/2.dta"
 drop _merge
 gsort a01 -div_name
 quietly by a01 : replace div_name = div_name[_n-1] if div_name == ""
-foreach j in a13 a23 a24 a25 a26 {
+foreach j in a13 a23 a24 a25 a26 a16_1_yy {
 	gsort a01 -`j'
 	quietly by a01 : replace `j' = `j'[_n-1] if `j' == .
 } 
-sort a01 mid
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/3.dta"
 drop _merge 
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/4.dta"
@@ -195,6 +222,21 @@ drop child_DD
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/6.dta"
 drop _merge 
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/7.dta"
-drop _merge 
+gen diff = a16_1_yy - b2_03
+gen enroll_age = b1_02 - diff
+gen late_enroll = .
+replace late_enroll = 0 if enroll_age <= 6 & enroll_age >= 4 
+replace late_enroll = 1 if enroll_age > 6 
+replace late_enroll = . if enroll_age == .
+drop diff _merge 
 merge m:m a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/8.dta"
 drop _merge 
+merge m:m a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/9.dta"
+drop _merge 
+
+
+
+
+
+
+
