@@ -143,37 +143,49 @@ save "/Users/satwikav/Documents/GitHub/thesis/data/5.dta",replace
 /////////OUTCOME - Assets
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/015_bihs_r3_male_mod_d1.dta", clear
 drop if d1_03==2
+collapse (sum) d1_03, by(a01)
+save "/Users/satwikav/Documents/GitHub/thesis/data/assets.dta",replace 
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/015_bihs_r3_male_mod_d1.dta", clear
 bys a01 d1_02 res_id_d: gen dup=_n
 rename d1_06_a d1_06_1
 rename d1_06_b d1_06_2
 rename d1_06_c d1_06_3
 reshape long d1_06_, i(a01 d1_02 res_id_d dup) j(ix)
 keep a01 d1_02 d1_06_ d1_03
-drop if d1_06_ == 71 | d1_06_ == 72 | d1_06_ == 73
-gen xx = 1 if d1_06_!=. 
-collapse (sum) xx, by(a01 d1_06_)
-keep if d1_06_!=. 
-save "/Users/satwikav/Documents/GitHub/thesis/data/assets.dta",replace 
-use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/015_bihs_r3_male_mod_d1.dta", clear
-keep a01 d1_02 d1_03 
-gen xy = 1  if d1_03 == 1
-collapse (sum) xy, by(a01)
-merge m:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/assets.dta"
-gen share_assets = xx/xy
-keep a01 d1_06_ share_assets
+drop if d1_06_ == 71 | d1_06_ == 72 | d1_06_ == 73 | d1_06_ == .
 rename d1_06_ mid
+rename d1_03 asset_
+reshape wide asset_, i(a01 mid) j(d1_02)
+egen assets_no = rsum (asset_1-asset_513)
+merge m:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/assets.dta"
+drop _merge
+gen share_assets = assets_no/d1_03
+drop asset_1-asset_513
 save "/Users/satwikav/Documents/GitHub/thesis/data/6.dta",replace 
-/////////OUTCOME - Education
-use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/011_bihs_r3_male_mod_b2.dta", clear
-keep a01 mid_b2 b2_01 b2_08b b2_08a b2_08c b2_08d b2_03 b2_04 b2_10 b2_13 b2_11 b2_08
-rename mid_b2 mid
-save "/Users/satwikav/Documents/GitHub/thesis/data/7.dta",replace 
-/////////OUTCOME - Training
+/////////OUTCOME - cost of Education
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/014_bihs_r3_male_mod_c3.dta", clear
-keep a01 mid_c3 c3_01 c3_08
+keep a01 mid_c3 c3_08 c3_01
 rename mid_c3 mid
-save "/Users/satwikav/Documents/GitHub/thesis/data/8.dta",replace 
-/////////OUTCOME - grade
+keep if c3_01 == 1
+replace c3_08 = 0 if c3_08 == .
+save "/Users/satwikav/Documents/GitHub/thesis/data/cost_edu.dta",replace 
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/011_bihs_r3_male_mod_b2.dta", clear
+keep a01 mid_b2 b2_08 b2_08b 
+keep if b2_08 == 1
+rename mid_b2 mid
+merge m:m a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/cost_edu.dta"
+drop _merge
+save "/Users/satwikav/Documents/GitHub/thesis/data/cost_edu.dta",replace 
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/011_bihs_r3_male_mod_b2.dta", clear
+keep a01 mid_b2 b2_08d b2_08c
+keep if b2_08c == 1
+rename mid_b2 mid
+merge m:m a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/cost_edu.dta"
+drop _merge
+collapse (sum) b2_08d b2_08b c3_08, by(a01 mid)
+egen cost_edu = rsum (b2_08d b2_08b c3_08)
+save "/Users/satwikav/Documents/GitHub/thesis/data/7.dta",replace 
+/////////OUTCOME - years of education
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/010_bihs_r3_male_mod_b1.dta",clear
 keep a01 mid b1_02 b1_08 
 keep if b1_02 <= 17 & b1_02 >= 6
@@ -192,15 +204,16 @@ replace id = 3 if b1_02 == 14 | b1_02 == 15
 replace id = 4 if b1_02 == 16 | b1_02 == 17
 bysort id: egen avg_edu = mean(year_edu)
 gen dev_edu = year_edu - avg_edu
-keep a01 mid year_edu dev_edu
-save "/Users/satwikav/Documents/GitHub/thesis/data/9.dta",replace 
-
-
-
-
-
-
-
+keep a01 mid year_edu avg_edu dev_edu
+save "/Users/satwikav/Documents/GitHub/thesis/data/8.dta",replace 
+/////////OUTCOME - late enrollment 
+/*gen diff = a16_1_yy - b2_03
+gen enroll_age = b1_02 - diff
+gen late_enroll = .
+replace late_enroll = 0 if enroll_age <= 6 & enroll_age >= 4 
+replace late_enroll = 1 if enroll_age > 6 
+replace late_enroll = . if enroll_age == .
+drop diff _merge*/
 /////////MERGE
 use "/Users/satwikav/Documents/GitHub/thesis/data/1.dta", clear
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/2.dta"
@@ -222,21 +235,8 @@ drop child_DD
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/6.dta"
 drop _merge 
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/7.dta"
-gen diff = a16_1_yy - b2_03
-gen enroll_age = b1_02 - diff
-gen late_enroll = .
-replace late_enroll = 0 if enroll_age <= 6 & enroll_age >= 4 
-replace late_enroll = 1 if enroll_age > 6 
-replace late_enroll = . if enroll_age == .
-drop diff _merge 
+drop _merge 
 merge m:m a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/8.dta"
 drop _merge 
-merge m:m a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/9.dta"
-drop _merge 
-
-
-
-
-
-
-
+drop if mid == 99
+save "/Users/satwikav/Documents/GitHub/thesis/data/dependent.dta",replace 
