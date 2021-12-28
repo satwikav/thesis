@@ -47,7 +47,7 @@ label var partactagr "Number of agricultural activities in which individual part
 
 *Adequate if respondent has at least some decisionmaking power
 foreach x of num 1/6{
-	gen inputdec_`x'=(we2_02_`x'>1) if partact_`x'==1
+	gen inputdec_`x'=(we2_02_`x'>2) if partact_`x'==1
 	replace inputdec_`x'=. if we2_02_`x'==. & partact_`x'==1
 	}
 
@@ -74,6 +74,8 @@ label var incomedec_6 "Has some input in decisions regarding income from fishing
 ***we5a_01,we5a_02***
 
 qui recode we5a_01a* we5a_01b* we5a_01c* we5a_02* (98=.)
+
+
 foreach x in a b c d e f g{
 	gen skip_`x'=(we5a_01a_`x'==1|we5a_01b_`x'==1| we5a_01c_`x'==1)
 	*Adequate if feel can make decisions to some extent (g02) 
