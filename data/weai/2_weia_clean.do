@@ -310,10 +310,9 @@ gen z105=10.5*60
 gen poor_z105 = work > z105
 gen npoor_z105 = 1-poor_z105
 save "/Users/satwikav/Documents/GitHub/thesis/data/weai/time_measure.dta",replace
-
 //Merge time poverty measure with all indicators dataset
 use "/Users/satwikav/Documents/GitHub/thesis/data/weai/all_indicators.dta", clear
 sort a01 file
 merge 1:1 a01 file using "/Users/satwikav/Documents/GitHub/thesis/data/weai/time_measure.dta",
-keep a01 div_name a16_1_yy a23 a27 mid b1_01 b1_02 b1_03 b1_04 wa05 wa06 feelinputdecagr raiprod_any jown_count jrightanyagr credjanydec_any incdec_count groupmember_any speakpublic_any npoor_z105 leisuretime file
+keep a01 mid b1_01 b1_03 wa05 wa06 feelinputdecagr raiprod_any jown_count jrightanyagr credjanydec_any incdec_count groupmember_any speakpublic_any npoor_z105 leisuretime file
 save "/Users/satwikav/Documents/GitHub/thesis/data/weai/all_indicators.dta",replace

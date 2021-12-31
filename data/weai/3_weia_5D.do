@@ -60,6 +60,9 @@ replace ci = . if sample5do==0
 
 label variable ci "Inadequacy Count without Parity"
 
+keep a01 mid file ci wa06 wa05
+
+save "/Users/satwikav/Documents/GitHub/thesis/data/weai/5d_score.dta",replace
 
 
 

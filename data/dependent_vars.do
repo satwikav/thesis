@@ -239,4 +239,7 @@ drop _merge
 merge m:m a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/8.dta"
 drop _merge 
 drop if mid == 99
+merge 1:m a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/weai/5d_score.dta"
+drop _merge 
+
 save "/Users/satwikav/Documents/GitHub/thesis/data/dependent.dta",replace 

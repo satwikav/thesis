@@ -1,20 +1,15 @@
 *******************************
 ***  MERGING OF DATASETS  ***
 *******************************
-/////////HHH INFO
-use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/009_bihs_r3_male_mod_a.dta",clear
-keep a01 a23 a27 div_name a16_1_yy
-save "/Users/satwikav/Documents/GitHub/thesis/data/weai/hh_1.dta",replace
 /////////HH MEMBER INFO
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/010_bihs_r3_male_mod_b1.dta",clear
-keep a01 mid b1_01 b1_02 b1_03 b1_04
-save "/Users/satwikav/Documents/GitHub/thesis/data/weai/hh_2.dta",replace
+keep a01 mid b1_01 b1_03 
+save "/Users/satwikav/Documents/GitHub/thesis/data/weai/hh_1.dta",replace
 /////////MALE WEAI MODS
 //mod 1
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/078_bihs_r3_male_weai_ind_mod_wa.dta",clear
 keep a01 wa04 wa05 wa06 
 rename wa04 mid
-drop if mid == .
 save "/Users/satwikav/Documents/GitHub/thesis/data/weai/m_1.dta",replace
 //mod 2
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/079_bihs_r3_male_weai_ind_mod_we2.dta", clear
@@ -81,8 +76,6 @@ drop etime_h_weai etime_m_weai hhid2 hh_type round
 save "/Users/satwikav/Documents/GitHub/thesis/data/weai/m_7c.dta",replace
 /////////MERGE MALE WEAI MODS
 use "/Users/satwikav/Documents/GitHub/thesis/data/weai/hh_1.dta", clear
-merge 1:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/weai/hh_2.dta"
-drop _merge
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/weai/m_1.dta"
 drop if _merge==1
 drop _merge 
@@ -174,7 +167,6 @@ save "/Users/satwikav/Documents/GitHub/thesis/data/weai/m_6a6b.dta", replace
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Female/126_bihs_r3_female_weai_ind_mod_wa.dta", clear
 keep a01 wa04 wa05 wa06 
 rename wa04 mid
-drop if mid == .
 save "/Users/satwikav/Documents/GitHub/thesis/data/weai/f_1.dta",replace
 //mod 2
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Female/127_bihs_r3_female_weai_ind_mod_we2.dta", clear
@@ -241,8 +233,6 @@ drop etime_h_weai etime_m_weai hhid2 hh_type round
 save "/Users/satwikav/Documents/GitHub/thesis/data/weai/f_7c.dta",replace
 /////////MERGE MALE WEAI MODS
 use "/Users/satwikav/Documents/GitHub/thesis/data/weai/hh_1.dta", clear
-merge 1:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/weai/hh_2.dta"
-drop _merge
 merge 1:1 a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/weai/f_1.dta"
 drop if _merge==1
 drop _merge 
@@ -338,6 +328,7 @@ label variable file "data from male or female file"
 label define file 1 "male file" 2 "female file"
 label value file file
 tab file
+drop if mid == .
 save "/Users/satwikav/Documents/GitHub/thesis/data/weai/weia.dta", replace
 /////////APPEND MALE & FEMALE 6a & 6b WEAI MODS
 use "/Users/satwikav/Documents/GitHub/thesis/data/weai/m_6a6b.dta",replace
