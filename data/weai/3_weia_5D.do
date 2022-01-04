@@ -2,15 +2,7 @@
 *******   FIVE DOMAINS EMPOWERMENT (5DE)   *******
 **************************************************
 // So far all_indicators were defined so 1 identifies adequate. //
-// Now we transform indicators so 1 identifies inadequate. //
 use "/Users/satwikav/Documents/GitHub/thesis/data/weai/all_indicators.dta",clear
-// So far all_indicators were defined so 1 identifies adequate. //
-// Now we transform indicators so 1 identifies inadequate. //
-foreach var in  feelinputdecagr raiprod_any jown_count jrightanyagr credjanydec_any incdec_count groupmember_any speakpublic_any npoor_z105 leisuretime {
-	rename `var' `var'_ndepr
-	gen `var'=1 if `var'_ndepr==0
-	replace `var'=0 if `var'_ndepr==1
-	}
 
 *****************************************************************************
 ********  Create a local variable with all your indicators varlist_emp ******
@@ -48,7 +40,7 @@ foreach var in npoor_z105 leisuretime{
 **********************************************************
 
 foreach var in `varlist_5do'{
-	gen wg0_`var'= `var'*w_`var'
+	gen wg0_`var'= `var' * w_`var'
 	}
 
 ********************************************************************************
@@ -56,10 +48,18 @@ foreach var in `varlist_5do'{
 ********************************************************************************
 
 egen ci=rsum(wg0_*)
-replace ci = . if sample5do==0
+label variable ci "Empowerment score"
 
-label variable ci "Inadequacy Count without Parity"
+egen n_missing=rowmiss(wg0_*)
+label variable n_missing "Number of missing variables by individual"
+gen missing=(n_missing>0)
+label variable missing "Individual with missing variables"
 
+*** Check sample drop due to missing values
+tab missing
+//replace ci = . if missing
+//drop if missing
+//keep if wa06 == 1
 keep a01 mid file ci wa06 wa05
 
 save "/Users/satwikav/Documents/GitHub/thesis/data/weai/5d_score.dta",replace
