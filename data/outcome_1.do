@@ -336,3 +336,171 @@ replace age_bucket = "24-35" if age_child >= 24 & age_child <= 35
 replace age_bucket = "36-47" if age_child >= 36 & age_child <= 47
 replace age_bucket = "48-59" if age_child >= 48 & age_child <= 59
 save "/Users/satwikav/Documents/GitHub/thesis/data/out_1.dta",replace */
+
+//Des stats
+tabstat haz06, stat(n mean sd min max) by(female)
+tabstat waz06, stat(n mean sd min max) by(female)
+tabstat whz06, stat(n mean sd min max) by(female)
+sum haz06 if stunting == 1
+sum haz06 if stunting == 1 & female == 1
+sum haz06 if stunting == 1 & female == 0
+sum whz06 if wasting == 1
+sum whz06 if wasting == 1 & female == 1
+sum whz06 if wasting == 1 & female == 0
+sum waz06 if underweight == 1
+sum waz06 if underweight == 1 & female == 1
+sum waz06 if underweight == 1 & female == 0
+summ haz06 waz06 whz06 w2_14 female empw_female trader_hhh farmer_hhh a23 dep dep_ratio cultland log_land
+tab dvcode
+foreach j in 10 20 30 40 50 55 60 {
+	gen d_`j' = 0 
+	replace d_`j' = 1 if dvcode == `j'
+	summ d_`j'
+} 
+tabstat total_income, stat(n mean sd min max) by(income_3)
+drop if missing(age_diff)
+summ age_mother age_father age_diff
+drop if missing(edu_diff)
+summ edu_mother edu_father edu_diff
+use "/Users/satwikav/Documents/GitHub/thesis/data/des_1.dta",clear
+//keep haz06 waz06 whz06 empw_female age_diff edu_diff w2_14 female farmer_hhh trader_hhh dep_ratio log_land dvcode income_3
+order haz06 empw_female age_diff edu_diff w2_14 female farmer_hhh trader_hhh dep_ratio log_land dvcode income_3
+//correlations
+pwcorr, star(0.5)
+reg haz06 empw_female 
+estimates table, star(.1 .05 .01)
+reg waz06 empw_female 
+estimates table, star(.1 .05 .01)
+reg whz06 empw_female 
+estimates table, star(.1 .05 .01)
+
+/* 5d score and parity gap for female respondents
+- drop if sex of the respondent is male
+- calculate the empowerment score
+- save in out_1.dta 
+use "/Users/satwikav/Documents/GitHub/thesis/data/out_1.dta",clear
+gen stun = 0
+replace stun = 1 if haz06 <= -2
+graph hbar, over(stun) // 34% of the kids in the sample are stunted 
+drop if stunting == "no"
+tab stunting //of the stunted kids, 50% are low, 36% are moderate and 14% are severe  
+graph hbar (count), over(stun) over(div_name) // Dhaka followed by Sylhet have the highest number of stunting cases
+graph hbar (count), over(stunting) over(div_name)
+
+graph hbar (count), over(stun) over(age_bucket)
+graph hbar (count), over(stunting) over(age_bucket)
+
+graph hbar (count), over(stun) over(gender_child)
+graph hbar (count), over(stunting) over(gender_child)
+
+
+
+graph hbar, over(stun) over(gender_child)
+
+
+use "/Users/satwikav/Documents/GitHub/thesis/data/out_1.dta",clear
+
+reg haz06 empw_female edu_diff age_diff gender_child age_child farm_male dep_ratio log_land i.income_3  i.dvcode 
+estimates table, star(.05 .01 .001)
+gen trader_hhh = 0
+replace trader_hhh = 1 if b1_10 == 50 | b1_10 == 51 | b1_10 == 52 | b1_10 == 53| b1_10 == 54
+drop b1_10
+merge 1:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/des_1.dta"
+drop if _m == 1
+drop _m 
+save "/Users/satwikav/Documents/GitHub/thesis/data/des_1.dta",replace
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/010_bihs_r3_male_mod_b1.dta",clear
+keep a01 b1_02 mid
+rename mid mid_father
+rename b1_02 age_father
+merge m:m a01 mid_father using "/Users/satwikav/Documents/GitHub/thesis/data/des_1.dta"
+drop if _m == 1
+drop _merge
+save "/Users/satwikav/Documents/GitHub/thesis/data/des_1.dta",replace
+drop if _m == 1
+drop _merge
+gen age_diff =  age_father - age_mother
+save "/Users/satwikav/Documents/GitHub/thesis/data/des_1.dta",replace
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/010_bihs_r3_male_mod_b1.dta",clear
+keep a01 mid b1_08
+gen edu_father = b1_08
+replace edu_father = 0 if b1_08 == 66
+replace edu_father = 0 if b1_08 == 99
+replace edu_father = 9 if b1_08 == 22
+replace edu_father = 11 if b1_08 == 33
+replace edu_father = 12 if b1_08 == 75
+replace edu_father = 15 if b1_08 == 14
+replace edu_father = 16 if b1_08 == 15
+replace edu_father = 16 if b1_08 == 72
+replace edu_father = 16 if b1_08 == 73
+replace edu_father = 16 if b1_08 == 74
+replace edu_father = 17 if b1_08 == 16
+replace edu_father = 17 if b1_08 == 71
+replace edu_father = . if b1_08 == 67
+replace edu_father = . if b1_08 == 76
+rename mid mid_father
+merge m:m a01 mid_father using "/Users/satwikav/Documents/GitHub/thesis/data/des_1.dta"
+drop if _m == 1
+drop _merge b1_08
+gen edu_diff = edu_father - edu_mother
+save "/Users/satwikav/Documents/GitHub/thesis/data/des_1.dta",replace
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/010_bihs_r3_male_mod_b1.dta",clear
+keep if b1_03 == 1
+keep a01 b1_10 
+gen farmer_hhh = 0
+replace farmer_hhh = 1 if b1_10 == 64 | b1_10 == 65 | b1_10 == 66 | b1_10 == 67| b1_10 == 68| b1_10 == 69| b1_10 == 70| b1_10 == 71| b1_10 == 72
+gen trader_hhh = 0
+replace trader_hhh = 1 if b1_10 == 50 | b1_10 == 51 | b1_10 == 52 | b1_10 == 53| b1_10 == 54
+drop b1_10
+merge 1:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/des_1.dta"
+drop if _m == 1
+drop _m 
+save "/Users/satwikav/Documents/GitHub/thesis/data/des_1.dta",replace
+
+gen minority = 0
+replace minority = 1 if a13 == 1 & muslim_share <= 0.5
+replace minority = 1 if a13 == 2 & hindu_share <= 0.5
+replace minority = 1 if a13 == 5 & other_share <= 0.5
+
+
+
+
+
+
+gen majority = 0
+replace majority = 1 if a13 == 1 & other_share >= 0.5
+replace majority = 1 if (a13 == 2 | a13 == 5) & muslim_share >= 0.5
+
+
+gen majority_1 = 0
+replace majority_1 = muslim_share if (a13 == 1 & other_share >= 0.5)
+replace majority_1 = other_share if ((a13 == 2 | a13 == 5 & muslim_share >= 0.5 ))
+replace majority_1 = . if a13 == .
+
+
+gen diversity_support = .
+replace diversity_support = other_share if a13 == 2 | a13 == 5
+replace diversity_support = muslim_share if a13 == 1
+
+
+gen diversity_support_1 = .
+replace diversity_support_1 = muslim_share if a13 == 2 | a13 == 5
+replace diversity_support_1 = other_share if a13 == 1
+
+gen other_majority = 0
+replace other_majority = 1 if (a13 == 2 | a13 == 5) & muslim_share >= 0.5
+replace other_majority = . if a13 == .
+
+
+gen muslim_majority = 0
+replace muslim_majority = other_share if a13 == 1
+replace muslim_majority = . if a13 == .
+
+gen majority_2 = 0
+replace majority = 1 if a13 == 1 & other_share >= 0.5
+replace majority = 1 if (a13 == 2 | a13 == 5) & muslim_share >= 0.5
+replace majority = . if a13 == .
+keep a01 diversity_support other_majority muslim_majority diversity_support_1 majority
+
+*/
+
