@@ -332,7 +332,29 @@ replace sibling = 0 if a25 == 1
 drop _m 
 save "/Users/satwikav/Documents/GitHub/thesis/data/controls.dta",replace
 
-
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/030_bihs_r3_male_mod_i1.dta", clear
+keep a01 crop_a_i1 i1_01 i1_06 i1_10
+rename i1_01 harvested
+rename i1_06 consumed
+rename i1_10 sold
+rename crop_a_i1 crop
+save "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/farmD.dta",replace
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/034_bihs_r3_male_mod_i3.dta", clear
+keep a01 i3_03 i3_04 i3_05 i3_06
+rename i3_04 harvested
+rename i3_05 consumed
+rename i3_06 sold
+rename i3_03 crop
+merge m:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/farmD.dta"
+drop if crop == . 
+collapse (sum) consumed sold harvested, by (a01 crop)
+duplicates tag a01 crop, generate(dup_hh)
+tab dup_hh
+gen FD = 1
+collapse (sum) FD, by (a01)
+merge 1:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/controls.dta"
+drop if _m == 1
+drop _m
 
 
 
