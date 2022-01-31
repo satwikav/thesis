@@ -47,21 +47,49 @@ egen DD = rowtotal(earlybf exbf)
 keep DD a01 child_age child_gender child_mid earlybf exbf mid_mother child_2_age
 */
 /////////OUTCOME - Nutrition for 6 - 23 months olds
-use "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/child1.dta"
+use "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/child1.dta",clear
 drop if child_age < 6
 forvalues j = 1/8 {
 	generate foodgroup`j'= 0 
 }
 replace foodgroup1 = 1 if y1_15a_1 == 1 | y1_15b_1 == 1 | y1_15g_1 == 1
+replace foodgroup1 = . if y1_15a_1 == . & y1_15b_1 == . & y1_15g_1 == .
 replace foodgroup2 = 1 if y1_15d_1 == 1 | y1_15p_1 == 1 
-replace foodgroup3 = 1 if y1_13d_1 == 1 | y1_15q_1 == 1 | y1_15r_1 == 1
+replace foodgroup2 = . if y1_15d_1 == . & y1_15p_1 == .
+replace foodgroup3 = 1 if y1_13d_1 == 1 | y1_15q_1 == 1 | y1_15r_1 == 1 | y1_15c_1 == 1 | y1_13c_1 == 1
+replace foodgroup3 = . if y1_13d_1 == . & y1_15q_1 == . & y1_15r_1 == . & y1_15c_1 == . & y1_13c_1 == .
 replace foodgroup4 = 1 if y1_15k_1 == 1 | y1_15l_1 == 1 | y1_15m_1 == 1 | y1_15n_1 == 1 
+replace foodgroup4 = . if y1_15k_1 == . & y1_15l_1 == . & y1_15m_1 == . & y1_15n_1 == .
 replace foodgroup5 = 1 if y1_15o_1 == 1
+replace foodgroup5 = . if y1_15o_1 == .
 replace foodgroup6 = 1 if y1_15e_1 == 1 | y1_15f_1 == 1 | y1_15h_1 == 1
+replace foodgroup6 = . if y1_15e_1 == . & y1_15f_1 == . & y1_15h_1 == .
 replace foodgroup7 = 1 if y1_15i_1 == 1 | y1_15j_1 == 1 
+replace foodgroup7 = . if y1_15i_1 == . & y1_15j_1 == . 
 replace foodgroup8 = 1 if y1_13a_1 == 1 
+replace foodgroup8 = . if y1_13a_1 == . 
 egen DD = rowtotal(foodgroup1 -foodgroup8)
-keep DD a01 child_age child_gender child_mid mid_mother child_2_age
+replace DD = . if foodgroup1 == . & foodgroup2 == . & foodgroup3 == . & foodgroup4 == . & foodgroup5 == . & foodgroup6 == . & foodgroup7 == . & foodgroup8 == . 
+forvalues j = 1/7 {
+	generate unhealthy`j'= 0 
+}
+replace unhealthy1 = 1 if y1_13e_1 == 1 
+replace unhealthy1 = . if y1_13e_1 == .
+replace unhealthy2 = 1 if y1_13f_1 == 1 
+replace unhealthy2 = . if y1_13f_1 == .
+replace unhealthy3 = 1 if y1_13g_1 == 1 
+replace unhealthy3 = . if y1_13g_1 == .
+replace unhealthy4 = 1 if y1_15t_1 == 1 
+replace unhealthy4 = . if y1_15t_1 == .
+replace unhealthy5 = 1 if y1_15u_1 == 1 
+replace unhealthy5 = . if y1_15u_1 == .
+replace unhealthy6 = 1 if y1_15v_1 == 1 
+replace unhealthy6 = . if y1_15v_1 == . 
+replace unhealthy7 = 1 if y1_15v1_1 == 1 
+replace unhealthy7 = . if y1_15v1_1 == . 
+egen DD_ufc = rowtotal(unhealthy1 -unhealthy7)
+replace DD_ufc = . if unhealthy1 == . & unhealthy2 == . & unhealthy3 == . & unhealthy4 == . & unhealthy5 == . & unhealthy6 == . & unhealthy7 == .
+keep DD DD_ufc a01 child_age child_gender child_mid mid_mother child_2_age
 /*Female empowerment scores
 - retain score, type of hh*/
 merge m:1 a01 using "/Users/satwikav/Documents/GitHub/thesis/data/weai_new/female_score.dta"
@@ -69,7 +97,7 @@ keep if _m == 3
 drop _m 
 gen empw_female = ci
 rename mid mid_female
-keep DD a01 child_age child_gender child_mid mid_mother empw_female mid_female child_2_age
+keep DD a01 child_age child_gender child_mid mid_mother empw_female mid_female child_2_age DD_ufc
 save "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/child1.dta",replace
 /*Mother's age
 - get mother's age from hh info
@@ -240,7 +268,7 @@ drop _m
 rename s_04 dist_bazaar
 save "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/child1.dta",replace*/
 //Farm diversity: Number of crop species including vegetables and fruits produced by the household in the last year 
-use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/030_bihs_r3_male_mod_i1.dta", clear
+/*use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/030_bihs_r3_male_mod_i1.dta", clear
 keep a01 crop_a_i1 i1_01 i1_06 i1_10
 rename i1_01 harvested
 rename i1_06 consumed
@@ -263,7 +291,33 @@ collapse (sum) FD, by (a01)
 merge 1:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/child1.dta"
 drop if _m == 1
 drop _m
+save "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/child1.dta",replace*/
+
+
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/030_bihs_r3_male_mod_i1.dta", clear
+keep a01 crop_a_i1 i1_01
+rename i1_01 harvested
+rename crop_a_i1 crop
+save "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/farmD.dta",replace
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/034_bihs_r3_male_mod_i3.dta", clear
+keep a01 i3_04 i3_03
+rename i3_04 harvested
+rename i3_03 crop
+merge m:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/farmD.dta"
+collapse (sum) harvested, by (a01 crop)
+gen FD = 1 if harvested > 0
+replace FD = 0 if harvested == 0
+collapse (sum) FD, by (a01)
+merge 1:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/child1.dta"
+drop if _m == 1
+drop _m
 save "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/child1.dta",replace
+ 
+//main results
+est clear  // clear the stored estimates
+eststo: quietly reg DD empw_female child_2_age child_age child_gender age_2_mother age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother farmer_hhh log_land FD i.income_3 i.dvcode 
+eststo: quietly reg DD_ufc empw_female child_2_age child_age child_gender age_2_mother age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother farmer_hhh log_land FD i.income_3 i.dvcode 
+esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress 
 
 
 
@@ -367,6 +421,7 @@ merge m:1 a01 mid_female community_id using "/Users/satwikav/Documents/GitHub/th
 keep if _m == 3
 drop _m
 save "/Users/satwikav/Documents/GitHub/thesis/data/outcome_2/child1_iv.dta", replace
+
 
 
 ///RESULTS
