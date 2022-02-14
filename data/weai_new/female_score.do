@@ -85,7 +85,7 @@ merge 1:1 a01 using "/Users/satwikav/Documents/GitHub/thesis/data/weai_new/f_5d.
 drop _m 
 save "/Users/satwikav/Documents/GitHub/thesis/data/weai_new/f_5d.dta",replace
 //mod 7c
-use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Female/139_bihs_r3_female_weai_ind_mod_we7c.dta"
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Female/139_bihs_r3_female_weai_ind_mod_we7c.dta",clear
 drop etime_h_weai etime_m_weai hhid2 hh_type round
 merge 1:1 a01 using "/Users/satwikav/Documents/GitHub/thesis/data/weai_new/f_5d.dta"
 drop _m 

@@ -35,6 +35,19 @@ merge 1:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/controls.dta"
 drop if _m == 1
 drop _m
 save "/Users/satwikav/Documents/GitHub/thesis/data/controls.dta", replace
+/*Male empowerment scores
+- retain score, type of hh
+- check if type of hh is same for each hh 
+- create if hh is deal headed
+- calculate empowerment gap between male and female*/
+use "/Users/satwikav/Documents/GitHub/thesis/data/weai_new/male_score.dta", clear
+rename ci empw_male
+rename mid mid_male
+keep a01 empw_male mid_male
+merge 1:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/controls.dta"
+drop if _m == 1
+drop _m
+save "/Users/satwikav/Documents/GitHub/thesis/data/controls.dta", replace
 /*Mother's age
 - get mother's age from hh info
 - create if age square of mother*/
@@ -408,34 +421,85 @@ merge 1:1 a01 mid_child mid_mother age_child using "/Users/satwikav/Documents/Gi
 drop _m
 save "/Users/satwikav/Documents/GitHub/thesis/data/controls.dta",replace
 
+
+
 ************************************************************************
 //Regression results for child nutrition and growth (0-59 months)
 ************************************************************************
 use "/Users/satwikav/Documents/GitHub/thesis/data/controls.dta",clear
 //main results regression 1 
 est clear  // clear the stored estimates
-eststo: quietly reg haz06 empw_female age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother abuse dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode
+eststo: quietly reg haz06 empw_female age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode
 //main results regression 2
-eststo: quietly reg waz06 empw_female age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother abuse dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode
+eststo: quietly reg waz06 empw_female age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode
 esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress 
+
+
+//robust estimates 
+est clear  // clear the stored estimates
+eststo: quietly reg haz06 empw_female age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD, vce(robust)
+//main results regression 2
+eststo: quietly reg waz06 empw_female age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD, vce(robust)
+esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress 
+
+use "/Users/satwikav/Documents/GitHub/thesis/data/controls.dta",clear
+merge m:1 a01 mid_female using "/Users/satwikav/Documents/GitHub/thesis/data/instruments.dta"
+drop if _m == 2
+
+//iv LIML
+ivreg2 haz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force), liml first
+
+ivreg2 waz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force), liml first
+
+//iv 2SLS
+ivreg2 haz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force), first
+
+ivreg2 waz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force), liml first
+
+
+
+
+
 //merge DD for 6-59
 gen DD_new = DD
 replace DD_new = DD_1 if DD == .
 //main results for regression 3
 est clear  // clear the stored estimates
-eststo: quietly reg DD empw_female age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother farmer_hhh log_land FD i.income_3 i.dvcode 
+eststo: quietly reg DD empw_female age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother farmer_hhh log_land sibling FD i.income_3 i.dvcode 
 //main results for regression 4
-eststo: quietly reg DD_1 empw_female age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother farmer_hhh log_land FD i.income_3 i.dvcode 
+eststo: quietly reg DD_1 empw_female age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother farmer_hhh log_land sibling FD i.income_3 i.dvcode 
 //main results for regression 5
-eststo: quietly reg DD_new empw_female age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother farmer_hhh log_land FD i.income_3 i.dvcode 
+eststo: quietly reg DD_new empw_female age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother farmer_hhh log_land sibling FD i.income_3 i.dvcode 
 esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress 
 
+ivreg2 DD_new age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother farmer_hhh log_land i.income_3 i.dvcode sibling FD (empw_female = mobility_score marr_force), liml first
+
+
+
+/*gen gap =  empw_male - empw_female
+//main results regression 1 
+est clear  // clear the stored estimates
+eststo: quietly reg haz06 gap age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother abuse dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode
+//main results regression 2
+eststo: quietly reg waz06 gap age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother abuse dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode
+esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress 
+
+//main results for regression 3
+est clear  // clear the stored estimates
+eststo: quietly reg DD gap age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother farmer_hhh log_land FD i.income_3 i.dvcode 
+//main results for regression 4
+eststo: quietly reg DD_1 gap age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother farmer_hhh log_land FD i.income_3 i.dvcode 
+//main results for regression 5
+eststo: quietly reg DD_new gap age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother farmer_hhh log_land FD i.income_3 i.dvcode 
+esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress */
 
 
 
 
-
-
+est clear  
+eststo: quietly reg DD empw_female age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode 
+eststo: quietly reg DD_1 empw_female age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode 
+esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress 
 
 
 
