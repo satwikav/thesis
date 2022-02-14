@@ -447,15 +447,24 @@ merge m:1 a01 mid_female using "/Users/satwikav/Documents/GitHub/thesis/data/ins
 drop if _m == 2
 
 //iv LIML
-ivreg2 haz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force), liml first
+ivreg2 haz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force), liml endog (empw_female)
 
-ivreg2 waz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force), liml first
+ivreg2 waz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force), liml endog (empw_female)
 
 //iv 2SLS
-ivreg2 haz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force), first
+ivreg2 haz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force drug_score), endog (empw_female)
 
-ivreg2 waz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force), liml first
+ivreg2 waz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force drug_score), endog (empw_female)
 
+//ivregress LIML
+ivregress liml haz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force)
+
+ivregress liml waz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force)
+
+//ivregress 2SLS
+ivregress 2sls haz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force)
+
+ivregress 2sls waz06 age_child age_2_child girl_child sibling age_mother age_2_mother height_mother edu_mother dep_ratio log_land edu_hhh age_hhh trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage i.income_3 i.dvcode FD (empw_female = mobility_score marr_force)
 
 
 
@@ -463,18 +472,23 @@ ivreg2 waz06 age_child age_2_child girl_child sibling age_mother age_2_mother he
 //merge DD for 6-59
 gen DD_new = DD
 replace DD_new = DD_1 if DD == .
-//main results for regression 3
-est clear  // clear the stored estimates
-eststo: quietly reg DD empw_female age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother farmer_hhh log_land sibling FD i.income_3 i.dvcode 
-//main results for regression 4
-eststo: quietly reg DD_1 empw_female age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother farmer_hhh log_land sibling FD i.income_3 i.dvcode 
-//main results for regression 5
-eststo: quietly reg DD_new empw_female age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother farmer_hhh log_land sibling FD i.income_3 i.dvcode 
+
+est clear  
+eststo: quietly reg DD empw_female age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode 
+eststo: quietly reg DD_1 empw_female age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode 
+eststo: quietly reg DD_new empw_female age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode 
 esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress 
 
-ivreg2 DD_new age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother farmer_hhh log_land i.income_3 i.dvcode sibling FD (empw_female = mobility_score marr_force), liml first
+//iv LIML
+ivreg2 DD age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode (empw_female = mobility_score marr_force), liml endog (empw_female)
+ivreg2 DD_1 age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode (empw_female = mobility_score marr_force), liml endog (empw_female)
+ivreg2 DD_new age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode (empw_female = mobility_score marr_force), liml endog (empw_female)
 
 
+//iv 2SLS
+ivreg2 DD age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode (empw_female = mobility_score marr_force), endog (empw_female)
+ivreg2 DD_1 age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode (empw_female = mobility_score marr_force), endog (empw_female)
+ivreg2 DD_new age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode (empw_female = mobility_score marr_force), endog (empw_female)
 
 /*gen gap =  empw_male - empw_female
 //main results regression 1 
@@ -496,10 +510,6 @@ esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress */
 
 
 
-est clear  
-eststo: quietly reg DD empw_female age_2_child age_2_mother age_child girl_child age_mother age_hhh dep_ratio dist_shop edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode 
-eststo: quietly reg DD_1 empw_female age_child age_2_child girl_child age_2_mother age_mother age_hhh dep_ratio dist_shop  edu_hhh edu_mother trader_hhh log_land FD i.income_3 i.dvcode 
-esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress 
 
 
 

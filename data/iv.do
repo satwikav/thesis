@@ -38,11 +38,6 @@ rename z5_03 dowry_value
 rename mid mid_female
 gen log_dowry = ln(dowry_value)
 save "/Users/satwikav/Documents/GitHub/thesis/data/instruments.dta", replace
-
-
-
-
-
 //community level empowermnet level 
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/009_bihs_r3_male_mod_a.dta",clear
 keep a01 community_id
@@ -115,6 +110,22 @@ merge 1:m a01 using "/Users/satwikav/Documents/GitHub/thesis/data/instruments.dt
 drop _merge
 save "/Users/satwikav/Documents/GitHub/thesis/data/instruments.dta", replace
 
+//husband consumes drugs
+use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Female/124_bihs_r3_female_mod_z4.dta", clear
+rename z4_mid mid_female 
+gen drinks = 0 
+replace drinks = 1 if z4_09 == 1 | z4_09a == 1
+replace drinks = . if z4_09 == . & z4_09a == .
+gen drugs = 0 
+replace drugs = 1 if z4_10 == 1 | z4_10a == 1
+replace drugs = . if z4_10 == . & z4_10a == .
+egen drug_score = rowtotal(drinks drugs)
+replace drug_score = . if drinks == . & drugs == .
+keep a01 mid_female drinks drugs drug_score
+merge 1:1 a01 mid_female using "/Users/satwikav/Documents/GitHub/thesis/data/instruments.dta"
+drop if _m == 1
+drop _merge
+save "/Users/satwikav/Documents/GitHub/thesis/data/instruments.dta", replace
 
 
 
