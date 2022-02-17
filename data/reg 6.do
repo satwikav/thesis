@@ -22,11 +22,10 @@ save "/Users/satwikav/Documents/GitHub/thesis/data/investment.dta",replace
 - drop if person is primary respondent
 - */
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/010_bihs_r3_male_mod_b1.dta",clear
-keep mid a01 b1_01 b1_02 b1_03 b1_04 b1_10 b1_09
+keep mid a01 b1_01 b1_02 b1_03 b1_04 b1_10 b1_09 b1_08
 merge 1:m a01 mid using "/Users/satwikav/Documents/GitHub/thesis/data/investment.dta"
 drop _m 
-keep if b1_02 < 18
-drop if b1_02 < 6 
+keep if b1_02 <= 17 & b1_02 >= 6
 rename b1_02 age_child
 gen age_2_child = age_child ^ 2
 drop if b1_03 == 1 | b1_03 == 2
@@ -46,6 +45,22 @@ gen not_working = 0
 replace not_working = 1 if b1_10 == 81|b1_10 == 82|b1_10 == 84|b1_10 == 85|b1_10 == 86|b1_10 == 99|b1_10 == 83
 replace not_working = . if b1_10 == .
 drop b1_10
+gen year_edu = b1_08
+replace year_edu = 0 if b1_08 == 66
+replace year_edu = 0 if b1_08 == 99
+replace year_edu = 9 if b1_08 == 22
+replace year_edu = 11 if b1_08 == 33
+replace year_edu = 12 if b1_08 == 75
+replace year_edu = 15 if b1_08 == 14
+replace year_edu = 16 if b1_08 == 15
+replace year_edu = 16 if b1_08 == 72
+replace year_edu = 16 if b1_08 == 73
+replace year_edu = 16 if b1_08 == 74
+replace year_edu = 17 if b1_08 == 16
+replace year_edu = 17 if b1_08 == 71
+replace year_edu = . if b1_08 == 67
+replace year_edu = . if b1_08 == 76
+drop b1_08
 save "/Users/satwikav/Documents/GitHub/thesis/data/investment.dta",replace 
 /*Female empowerment scores
 - retain score, type of hh*/
@@ -232,14 +247,13 @@ esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
 
 use "/Users/satwikav/Documents/GitHub/thesis/data/investment.dta",clear
 merge m:1 a01 mid_female using "/Users/satwikav/Documents/GitHub/thesis/data/instruments.dta"
-drop if _m == 2
 
 
 //iv LIML
-ivreg2 log_value age_child age_2_child girl_child edu_child not_working unmarried edu_female_resp age_female_resp log_land dep_ratio age_hhh edu_hhh trader_hhh i.income_3  i.dvcode (empw_female = mobility_score marr_force),liml endog (empw_female)
+ivreg2 log_value age_child age_2_child girl_child edu_child not_working unmarried edu_female_resp age_female_resp log_land dep_ratio age_hhh edu_hhh trader_hhh i.income_3  i.dvcode (empw_female = mobility_score marr_choice),liml endog (empw_female)
 
 
 //iv 2sls
-ivreg2 log_value age_child age_2_child girl_child edu_child not_working unmarried edu_female_resp age_female_resp log_land dep_ratio age_hhh edu_hhh trader_hhh i.income_3  i.dvcode (empw_female = mobility_score marr_force), endog (empw_female)
+ivreg2 log_value age_child age_2_child girl_child edu_child not_working unmarried edu_female_resp age_female_resp log_land dep_ratio age_hhh edu_hhh trader_hhh i.income_3  i.dvcode (empw_female = mobility_score marr_choice), endog (empw_female)
 
 

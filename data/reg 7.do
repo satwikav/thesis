@@ -197,13 +197,19 @@ save "/Users/satwikav/Documents/GitHub/thesis/data/investment_1.dta",replace
 
 
 est clear  
-eststo: quietly reg log_inv empw_female  i.dvcode
-eststo: quietly reg log_inv empw_female 
 eststo: quietly reg log_inv empw_female prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land i.income_3 i.dvcode
 esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
 
+use "/Users/satwikav/Documents/GitHub/thesis/data/investment_1.dta",clear
+merge m:1 a01 mid_female using "/Users/satwikav/Documents/GitHub/thesis/data/instruments.dta"
+//drop if _m == 2
+
+//iv LIML
+ivreg2 log_inv prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land i.income_3 i.dvcode (empw_female = mobility_score marr_choice),liml endog (empw_female)
 
 
+//iv 2sls
+ivreg2 log_inv prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land i.income_3 i.dvcode (empw_female = mobility_score marr_choice), endog (empw_female)
 
 /*
 gen gap =  empw_male - empw_female
