@@ -476,3 +476,20 @@ merge 1:1 a01 using "/Users/satwikav/Documents/GitHub/thesis/data/weai_new/empw_
 drop if _m == 1
 assert ci == ci_old
 */
+
+
+
+
+
+use "/Users/satwikav/Documents/GitHub/thesis/data/weai_new/female_score.dta",clear
+label var feelinputdecagr "input in prod decisions"
+label var raiprod_any "autonomy in prod"
+label var jown_count "asset ownership"
+label var jrightanyagr "rights over assets"
+label var credjanydec_any "credit decisions"
+label var incdec_count "income use"
+label var groupmember_any "group membership"
+label var speakpublic_any "public speaking"
+label var leisuretime "leisure time"
+label var npoor_z105 "workload"
+graph pie feelinputdecagr raiprod_any jown_count jrightanyagr credjanydec_any incdec_count groupmember_any speakpublic_any leisuretime npoor_z105, plabel(_all percent, size(*0.9) color(white)) sort descending 
