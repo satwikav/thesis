@@ -21,7 +21,7 @@ toilet is sealed, child seen eating soil, garbage is disposed openly
 ************************/
 //Division code and siblings
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/009_bihs_r3_male_mod_a.dta",clear
-keep a01 dvcode a25
+keep a01 dvcode a25 div_name
 gen sibling = 1 if a25 > 1
 replace sibling = 0 if a25 == 1 | a25 == 0
 replace sibling = . if a25 == .
@@ -128,9 +128,8 @@ drop _merge
 save "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta", replace
 use "/Users/satwikav/Documents/GitHub/thesis/BIHSRound3/Male/065_bihs_r3_male_mod_r2.dta", clear
 keep a01 r2_01 r2_09 r2_10
-gen eat_soil = 1
-replace eat_soil = 0 if r2_01 == 3
-replace eat_soil = . if r2_01 == 4
+gen eat_soil = 0
+replace eat_soil = 1 if r2_01 == 1 | r2_01 == 1
 gen animal_feces = 0
 replace animal_feces = 1 if r2_09 == 1 | r2_10 == 1
 keep a01 animal_feces eat_soil
@@ -174,9 +173,12 @@ replace girls = 0 if b1_01 == 1 & children == 1
 gen child_school = 1 if b1_09 == 1 & children == 1
 replace child_school = 0 if b1_09 == 2 & children == 1
 collapse (sum) children girls child_school, by(a01)
+gen girl_child_hh = 0 
+replace girl_child_hh = 1 if girls > 0 
+replace girl_child_hh = . if girls == . 
 gen prop_girl_child = girls/children
 gen prop_school_child = child_school/children
-keep a01 prop_* children
+keep a01 prop_* children girls girl_child_hh
 replace prop_school_child = 0 if prop_school_child == . & children == 0
 replace prop_girl_child = 0 if prop_girl_child == . & children == 0
 merge 1:1 a01 using "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta"
@@ -438,6 +440,7 @@ save "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta",replace
 use "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta", clear
 gen MDDS = DD_1
 replace MDDS = DD_2 if DD_1 == .
+drop DD_1 DD_2
 save "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta",replace
 /************************
 Instrumental Variables 
@@ -484,24 +487,80 @@ merge 1:m a01 mid_female using "/Users/satwikav/Documents/GitHub/thesis/data/bih
 drop _merge
 save "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta",replace
 /************************
-OLS Regressions
+Regressions
 ************************/
+use "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta",clear
 
 est clear  // clear the stored estimates
-eststo: quietly reg haz06 empw_female age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother
-//main results regression 2
-eststo: quietly reg waz06 empw_female age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile  i.dvcode age_2_mother
-esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress 
+eststo: quietly reg haz06 empw_female age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother, vce(robust)
+eststo: quietly ivreg2 haz06 age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
+eststo: quietly reg waz06 empw_female age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile  i.dvcode age_2_mother, vce(robust)
+eststo: quietly ivreg2 waz06 age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
+esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
 
+est clear  // clear the stored estimates
+eststo: quietly reg MDDS empw_female age_child girl_child sibling age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother age_2_child, vce(robust)
+eststo: quietly ivreg2 MDDS age_child girl_child sibling age_2_child age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
+esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
+  
 est clear  
-eststo: quietly reg MDDS empw_female age_child girl_child sibling age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode
-eststo: quietly reg log_inv empw_female prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode
-esttab, b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress 
+eststo: quietly reg log_inv empw_female prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
+eststo: quietly ivreg2 log_inv prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
+esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
 
-ivreg2 haz06 age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice), endog (empw_female)
+//remove prop girls
+est clear  
+eststo: quietly reg log_inv empw_female girl_child_hh prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
+eststo: quietly ivreg2 log_inv girl_child_hh prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
+esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
 
-ivreg2 waz06 age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice), endog (empw_female)
+/************************
+Magnitudes
+************************/
+use "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta",clear
 
-ivreg2 MDDS age_child girl_child sibling age_2_child age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice), endog (empw_female)
+gen ln_empw = ln(empw_female)
+gen ln_mdds= ln(MDDS)
+egen z_empw = std(empw_female)
+egen z_haz = std(haz06)
+egen z_waz = std(waz06)
 
-ivreg2 log_inv prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice), endog (empw_female)
+est clear  // clear the stored estimates
+eststo: quietly reg z_haz z_empw age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother
+eststo: quietly reg z_waz z_empw age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile  i.dvcode age_2_mother
+eststo: quietly ivreg2 z_haz age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother (z_empw = mobility marr_choice), endog (z_empw)
+eststo: quietly ivreg2 z_waz age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother (z_empw = mobility marr_choice), endog (z_empw)
+esttab, stat(N idstat widstat sarganp estatp, labels("N" "Underidentification" "Weak identification" "Over identification" "Endogenity")) b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
+
+est clear  // clear the stored estimates
+eststo: quietly reg ln_mdds ln_empw age_child girl_child sibling age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother age_2_child
+eststo: quietly ivreg2 ln_mdds age_child girl_child sibling age_2_child age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother (ln_empw = mobility marr_choice), endog (ln_empw)
+esttab, stat(N idstat widstat sarganp estatp, labels("N" "Underidentification" "Weak identification" "Over identification" "Endogenity")) b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
+  
+est clear  
+eststo: quietly reg log_inv ln_empw prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode
+eststo: quietly ivreg2 log_inv prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (ln_empw = mobility marr_choice), endog (ln_empw)
+esttab, stat(N idstat widstat sarganp estatp, labels("N" "Underidentification" "Weak identification" "Over identification" "Endogenity")) b(2) p(2) r2 ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
+
+/************************
+Interaction Regressions
+************************/
+use "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta",clear
+
+est clear  // clear the stored estimates
+eststo: quietly reg haz06 empw_female girl_child c.empw_female#girl_child age_child age_2_child  sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother, vce(robust)
+eststo: quietly ivreg2 haz06 age_child c.empw_female#girl_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
+eststo: quietly reg waz06 empw_female c.empw_female#girl_child age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile  i.dvcode age_2_mother, vce(robust)
+eststo: quietly ivreg2 waz06 c.empw_female#girl_child age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
+esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
+
+est clear  // clear the stored estimates
+eststo: quietly reg MDDS c.empw_female#girl_child empw_female age_child girl_child sibling age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother age_2_child, vce(robust)
+eststo: quietly ivreg2 MDDS c.empw_female#girl_child age_child girl_child sibling age_2_child age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
+esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
+  
+//remove prop girls
+est clear  
+eststo: quietly reg log_inv empw_female girl_child_hh c.empw_female#girl_child_hh prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
+eststo: quietly ivreg2 log_inv c.empw_female#girl_child_hh girl_child_hh prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
+esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
