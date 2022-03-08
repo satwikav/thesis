@@ -168,16 +168,9 @@ keep mid a01 b1_02 b1_03 b1_10 b1_08a b1_01 b1_04 b1_09
 gen children = 0
 replace children = 1 if b1_02 > 5 & b1_02 < 18
 replace children = 0 if b1_03 == 1 | b1_03 == 2
-gen girls = 1 if b1_01 == 2 & children == 1
-replace girls = 0 if b1_01 == 1 & children == 1
-gen child_school = 1 if b1_09 == 1 & children == 1
-replace child_school = 0 if b1_09 == 2 & children == 1
-collapse (sum) children girls child_school, by(a01)
-gen prop_girl_child = girls/children
-gen prop_school_child = child_school/children
-keep a01 prop_* children
-replace prop_school_child = 0 if prop_school_child == . & children == 0
-replace prop_girl_child = 0 if prop_girl_child == . & children == 0
+collapse (sum) children, by(a01)
+gen children_dummy = 0
+replace children_dummy = 1 if children > 0
 merge 1:1 a01 using "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta"
 drop _m
 save "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta", replace
@@ -499,13 +492,15 @@ est clear  // clear the stored estimates
 eststo: quietly reg MDDS empw_female age_child girl_child sibling age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother age_2_child, vce(robust)
 eststo: quietly ivreg2 MDDS age_child girl_child sibling age_2_child age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
 esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
-  
+
 est clear  
-eststo: quietly reg log_inv empw_female prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
-eststo: quietly ivreg2 log_inv prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
+eststo: quietly reg log_inv empw_female children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
+eststo: quietly ivreg2 log_inv children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
+eststo: quietly reg log_inv empw_female children_dummy c.empw_female#children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
+eststo: quietly ivreg2 log_inv children_dummy c.empw_female#children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
 esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
 
-//remove prop girls
+/*remove prop girls
 est clear  
 eststo: quietly reg log_inv empw_female girl_child_hh prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
 eststo: quietly ivreg2 log_inv girl_child_hh prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
@@ -560,4 +555,4 @@ esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identif
 est clear  
 eststo: quietly reg log_inv empw_female girl_child_hh c.empw_female#girl_child_hh prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
 eststo: quietly ivreg2 log_inv c.empw_female#girl_child_hh girl_child_hh prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
-esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
+esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress */

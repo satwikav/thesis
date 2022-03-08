@@ -1,0 +1,175 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}/Users/satwikav/Desktop/results.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res} 8 Mar 2022, 12:12:42
+
+{com}. do "/var/folders/fq/wtbgwjjs2fzd6_qf21fpfxhh0000gn/T//SD00818.000000"
+{txt}
+{com}. use "/Users/satwikav/Documents/GitHub/thesis/data/bihs_vysetty.dta",clear
+{txt}
+{com}. 
+. est clear  // clear the stored estimates
+{res}{txt}
+{com}. eststo: quietly reg haz06 empw_female age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother, vce(robust)
+{txt}({res}est1{txt} stored)
+
+{com}. eststo: quietly ivreg2 haz06 age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
+{txt}({res}est2{txt} stored)
+
+{com}. eststo: quietly reg waz06 empw_female age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile  i.dvcode age_2_mother, vce(robust)
+{txt}({res}est3{txt} stored)
+
+{com}. eststo: quietly ivreg2 waz06 age_child age_2_child girl_child sibling age_mother height_mother edu_mother dep_ratio log_land trader_hhh animal_feces pipe_water sealed_toilet eat_soil open_garbage poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
+{txt}({res}est4{txt} stored)
+
+{com}. esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
+{res}
+{txt}{hline 102}
+{txt}                 (1)                    (2)                    (3)                    (4)             
+{txt}               haz06                  haz06                  waz06                  waz06             
+{txt}{hline 102}
+{txt}empw_fem~e{res}      0.34**  {ralign 9:{txt:(}0.17{txt:)}}      0.68    {ralign 9:{txt:(}0.99{txt:)}}      0.22    {ralign 9:{txt:(}0.15{txt:)}}      2.55*** {ralign 9:{txt:(}0.89{txt:)}}{txt}
+{txt}age_child {res}     -0.06*** {ralign 9:{txt:(}0.01{txt:)}}     -0.06*** {ralign 9:{txt:(}0.01{txt:)}}     -0.03*** {ralign 9:{txt:(}0.01{txt:)}}     -0.03*** {ralign 9:{txt:(}0.01{txt:)}}{txt}
+{txt}age_2_ch~d{res}      0.00*** {ralign 9:{txt:(}0.00{txt:)}}      0.00*** {ralign 9:{txt:(}0.00{txt:)}}      0.00*** {ralign 9:{txt:(}0.00{txt:)}}      0.00*** {ralign 9:{txt:(}0.00{txt:)}}{txt}
+{txt}girl_child{res}     -0.03    {ralign 9:{txt:(}0.05{txt:)}}     -0.02    {ralign 9:{txt:(}0.05{txt:)}}     -0.05    {ralign 9:{txt:(}0.04{txt:)}}     -0.07    {ralign 9:{txt:(}0.05{txt:)}}{txt}
+{txt}sibling   {res}     -0.11*   {ralign 9:{txt:(}0.06{txt:)}}     -0.09    {ralign 9:{txt:(}0.07{txt:)}}     -0.03    {ralign 9:{txt:(}0.05{txt:)}}      0.03    {ralign 9:{txt:(}0.06{txt:)}}{txt}
+{txt}age_mother{res}      0.12*** {ralign 9:{txt:(}0.03{txt:)}}      0.12*** {ralign 9:{txt:(}0.03{txt:)}}      0.09*** {ralign 9:{txt:(}0.03{txt:)}}      0.11*** {ralign 9:{txt:(}0.03{txt:)}}{txt}
+{txt}height_m~r{res}      0.06*** {ralign 9:{txt:(}0.01{txt:)}}      0.06*** {ralign 9:{txt:(}0.01{txt:)}}      0.03*** {ralign 9:{txt:(}0.00{txt:)}}      0.03*** {ralign 9:{txt:(}0.00{txt:)}}{txt}
+{txt}edu_mother{res}      0.02*** {ralign 9:{txt:(}0.01{txt:)}}      0.02**  {ralign 9:{txt:(}0.01{txt:)}}      0.03*** {ralign 9:{txt:(}0.01{txt:)}}      0.02**  {ralign 9:{txt:(}0.01{txt:)}}{txt}
+{txt}dep_ratio {res}     -0.33    {ralign 9:{txt:(}0.22{txt:)}}     -0.32    {ralign 9:{txt:(}0.23{txt:)}}     -0.38**  {ralign 9:{txt:(}0.17{txt:)}}     -0.22    {ralign 9:{txt:(}0.20{txt:)}}{txt}
+{txt}log_land  {res}      0.06    {ralign 9:{txt:(}0.05{txt:)}}      0.06    {ralign 9:{txt:(}0.05{txt:)}}      0.09**  {ralign 9:{txt:(}0.04{txt:)}}      0.10**  {ralign 9:{txt:(}0.05{txt:)}}{txt}
+{txt}trader_hhh{res}      0.07    {ralign 9:{txt:(}0.08{txt:)}}      0.06    {ralign 9:{txt:(}0.08{txt:)}}      0.12**  {ralign 9:{txt:(}0.06{txt:)}}      0.15**  {ralign 9:{txt:(}0.07{txt:)}}{txt}
+{txt}animal_f~s{res}     -0.10*   {ralign 9:{txt:(}0.05{txt:)}}     -0.12*   {ralign 9:{txt:(}0.06{txt:)}}     -0.08*   {ralign 9:{txt:(}0.05{txt:)}}     -0.15*** {ralign 9:{txt:(}0.05{txt:)}}{txt}
+{txt}pipe_water{res}      0.98**  {ralign 9:{txt:(}0.41{txt:)}}      1.03**  {ralign 9:{txt:(}0.44{txt:)}}      0.98**  {ralign 9:{txt:(}0.39{txt:)}}      0.93**  {ralign 9:{txt:(}0.43{txt:)}}{txt}
+{txt}sealed_t~t{res}      0.14*** {ralign 9:{txt:(}0.05{txt:)}}      0.14**  {ralign 9:{txt:(}0.06{txt:)}}      0.11**  {ralign 9:{txt:(}0.05{txt:)}}      0.13*** {ralign 9:{txt:(}0.05{txt:)}}{txt}
+{txt}eat_soil  {res}     -0.17*** {ralign 9:{txt:(}0.06{txt:)}}     -0.18*** {ralign 9:{txt:(}0.06{txt:)}}     -0.04    {ralign 9:{txt:(}0.04{txt:)}}     -0.01    {ralign 9:{txt:(}0.05{txt:)}}{txt}
+{txt}open_gar~e{res}     -0.02    {ralign 9:{txt:(}0.06{txt:)}}     -0.02    {ralign 9:{txt:(}0.06{txt:)}}     -0.09**  {ralign 9:{txt:(}0.05{txt:)}}     -0.09*   {ralign 9:{txt:(}0.05{txt:)}}{txt}
+{txt}poorest_~e{res}     -0.15**  {ralign 9:{txt:(}0.07{txt:)}}     -0.13**  {ralign 9:{txt:(}0.07{txt:)}}     -0.14**  {ralign 9:{txt:(}0.06{txt:)}}     -0.11*   {ralign 9:{txt:(}0.06{txt:)}}{txt}
+{txt}richest_~e{res}     -0.06    {ralign 9:{txt:(}0.06{txt:)}}     -0.05    {ralign 9:{txt:(}0.06{txt:)}}     -0.09*   {ralign 9:{txt:(}0.05{txt:)}}     -0.11**  {ralign 9:{txt:(}0.06{txt:)}}{txt}
+{txt}10.dvcode {res}      0.00    {ralign 9:{txt:(}.{txt:)}}      0.00    {ralign 9:{txt:(}.{txt:)}}      0.00    {ralign 9:{txt:(}.{txt:)}}      0.00    {ralign 9:{txt:(}.{txt:)}}{txt}
+{txt}20.dvcode {res}      0.11    {ralign 9:{txt:(}0.11{txt:)}}      0.10    {ralign 9:{txt:(}0.12{txt:)}}     -0.07    {ralign 9:{txt:(}0.08{txt:)}}      0.05    {ralign 9:{txt:(}0.10{txt:)}}{txt}
+{txt}30.dvcode {res}      0.12    {ralign 9:{txt:(}0.10{txt:)}}      0.10    {ralign 9:{txt:(}0.11{txt:)}}      0.05    {ralign 9:{txt:(}0.08{txt:)}}      0.12    {ralign 9:{txt:(}0.09{txt:)}}{txt}
+{txt}40.dvcode {res}      0.06    {ralign 9:{txt:(}0.13{txt:)}}      0.06    {ralign 9:{txt:(}0.13{txt:)}}     -0.05    {ralign 9:{txt:(}0.10{txt:)}}      0.04    {ralign 9:{txt:(}0.11{txt:)}}{txt}
+{txt}50.dvcode {res}      0.21*   {ralign 9:{txt:(}0.13{txt:)}}      0.20    {ralign 9:{txt:(}0.13{txt:)}}     -0.03    {ralign 9:{txt:(}0.10{txt:)}}      0.05    {ralign 9:{txt:(}0.11{txt:)}}{txt}
+{txt}55.dvcode {res}      0.08    {ralign 9:{txt:(}0.12{txt:)}}      0.07    {ralign 9:{txt:(}0.12{txt:)}}     -0.11    {ralign 9:{txt:(}0.10{txt:)}}     -0.09    {ralign 9:{txt:(}0.10{txt:)}}{txt}
+{txt}60.dvcode {res}     -0.13    {ralign 9:{txt:(}0.11{txt:)}}     -0.14    {ralign 9:{txt:(}0.12{txt:)}}     -0.30*** {ralign 9:{txt:(}0.09{txt:)}}     -0.18*   {ralign 9:{txt:(}0.10{txt:)}}{txt}
+{txt}age_2_mo~r{res}     -0.00*** {ralign 9:{txt:(}0.00{txt:)}}     -0.00*** {ralign 9:{txt:(}0.00{txt:)}}     -0.00*** {ralign 9:{txt:(}0.00{txt:)}}     -0.00*** {ralign 9:{txt:(}0.00{txt:)}}{txt}
+{txt}_cons     {res}    -11.13*** {ralign 9:{txt:(}0.84{txt:)}}    -11.30*** {ralign 9:{txt:(}1.16{txt:)}}     -7.19*** {ralign 9:{txt:(}0.69{txt:)}}     -9.11*** {ralign 9:{txt:(}1.06{txt:)}}{txt}
+{txt}{hline 102}
+{txt}N         {res}   2214.00                2143.00                2218.00                2147.00             {txt}
+{txt}Weak ide~n{res}                            28.75                                         28.69             {txt}
+{txt}Over ide~n{res}                             0.61                                          0.65             {txt}
+{txt}Endogenity{res}                             0.76                                          0.01             {txt}
+{txt}{hline 102}
+{txt}Standard errors in parentheses
+{txt}* p<0.10, ** p<0.05, *** p<0.01
+
+{com}. 
+. est clear  // clear the stored estimates
+{res}{txt}
+{com}. eststo: quietly reg MDDS empw_female age_child girl_child sibling age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother age_2_child, vce(robust)
+{txt}({res}est1{txt} stored)
+
+{com}. eststo: quietly ivreg2 MDDS age_child girl_child sibling age_2_child age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
+{txt}({res}est2{txt} stored)
+
+{com}. esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
+{res}
+{txt}{hline 56}
+{txt}                 (1)                    (2)             
+{txt}                MDDS                   MDDS             
+{txt}{hline 56}
+{txt}empw_fem~e{res}      0.58*** {ralign 9:{txt:(}0.18{txt:)}}      2.37**  {ralign 9:{txt:(}1.06{txt:)}}{txt}
+{txt}age_child {res}      0.14*** {ralign 9:{txt:(}0.01{txt:)}}      0.14*** {ralign 9:{txt:(}0.01{txt:)}}{txt}
+{txt}girl_child{res}      0.05    {ralign 9:{txt:(}0.05{txt:)}}      0.05    {ralign 9:{txt:(}0.06{txt:)}}{txt}
+{txt}sibling   {res}     -0.02    {ralign 9:{txt:(}0.06{txt:)}}      0.02    {ralign 9:{txt:(}0.07{txt:)}}{txt}
+{txt}age_fema~p{res}      0.00    {ralign 9:{txt:(}0.00{txt:)}}      0.00    {ralign 9:{txt:(}0.00{txt:)}}{txt}
+{txt}edu_fema~p{res}      0.03*** {ralign 9:{txt:(}0.01{txt:)}}      0.03*** {ralign 9:{txt:(}0.01{txt:)}}{txt}
+{txt}dep_ratio {res}     -0.02    {ralign 9:{txt:(}0.21{txt:)}}      0.05    {ralign 9:{txt:(}0.23{txt:)}}{txt}
+{txt}log_land  {res}      0.08    {ralign 9:{txt:(}0.06{txt:)}}      0.08    {ralign 9:{txt:(}0.06{txt:)}}{txt}
+{txt}trader_hhh{res}      0.29*** {ralign 9:{txt:(}0.08{txt:)}}      0.31*** {ralign 9:{txt:(}0.08{txt:)}}{txt}
+{txt}dist_shop {res}     -0.01*** {ralign 9:{txt:(}0.00{txt:)}}     -0.01*** {ralign 9:{txt:(}0.00{txt:)}}{txt}
+{txt}FD        {res}      0.01    {ralign 9:{txt:(}0.01{txt:)}}      0.01    {ralign 9:{txt:(}0.01{txt:)}}{txt}
+{txt}poorest_~e{res}      0.01    {ralign 9:{txt:(}0.07{txt:)}}      0.03    {ralign 9:{txt:(}0.07{txt:)}}{txt}
+{txt}richest_~e{res}      0.12*   {ralign 9:{txt:(}0.06{txt:)}}      0.12*   {ralign 9:{txt:(}0.07{txt:)}}{txt}
+{txt}10.dvcode {res}      0.00    {ralign 9:{txt:(}.{txt:)}}      0.00    {ralign 9:{txt:(}.{txt:)}}{txt}
+{txt}20.dvcode {res}      0.07    {ralign 9:{txt:(}0.12{txt:)}}      0.14    {ralign 9:{txt:(}0.13{txt:)}}{txt}
+{txt}30.dvcode {res}      0.01    {ralign 9:{txt:(}0.11{txt:)}}      0.05    {ralign 9:{txt:(}0.12{txt:)}}{txt}
+{txt}40.dvcode {res}     -0.09    {ralign 9:{txt:(}0.14{txt:)}}     -0.01    {ralign 9:{txt:(}0.14{txt:)}}{txt}
+{txt}50.dvcode {res}     -0.21    {ralign 9:{txt:(}0.13{txt:)}}     -0.17    {ralign 9:{txt:(}0.14{txt:)}}{txt}
+{txt}55.dvcode {res}      0.07    {ralign 9:{txt:(}0.13{txt:)}}      0.01    {ralign 9:{txt:(}0.14{txt:)}}{txt}
+{txt}60.dvcode {res}      0.01    {ralign 9:{txt:(}0.12{txt:)}}      0.12    {ralign 9:{txt:(}0.14{txt:)}}{txt}
+{txt}age_2_mo~r{res}     -0.00    {ralign 9:{txt:(}0.00{txt:)}}     -0.00    {ralign 9:{txt:(}0.00{txt:)}}{txt}
+{txt}age_2_ch~d{res}     -0.00*** {ralign 9:{txt:(}0.00{txt:)}}     -0.00*** {ralign 9:{txt:(}0.00{txt:)}}{txt}
+{txt}_cons     {res}      1.34*** {ralign 9:{txt:(}0.26{txt:)}}      0.09    {ralign 9:{txt:(}0.79{txt:)}}{txt}
+{txt}{hline 56}
+{txt}N         {res}   1980.00                1916.00             {txt}
+{txt}Weak ide~n{res}                            26.81             {txt}
+{txt}Over ide~n{res}                             0.20             {txt}
+{txt}Endogenity{res}                             0.08             {txt}
+{txt}{hline 56}
+{txt}Standard errors in parentheses
+{txt}* p<0.10, ** p<0.05, *** p<0.01
+
+{com}. 
+. est clear  
+{res}{txt}
+{com}. eststo: quietly reg log_inv empw_female children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
+{txt}({res}est1{txt} stored)
+
+{com}. eststo: quietly ivreg2 log_inv children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
+{txt}({res}est2{txt} stored)
+
+{com}. eststo: quietly reg log_inv empw_female children_dummy c.empw_female#children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
+{txt}({res}est3{txt} stored)
+
+{com}. eststo: quietly ivreg2 log_inv children_dummy c.empw_female#children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
+{txt}({res}est4{txt} stored)
+
+{com}. esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
+{res}
+{txt}{hline 102}
+{txt}                 (1)                    (2)                    (3)                    (4)             
+{txt}             log_inv                log_inv                log_inv                log_inv             
+{txt}{hline 102}
+{txt}empw_fem~e{res}      0.53*** {ralign 9:{txt:(}0.12{txt:)}}      2.68*** {ralign 9:{txt:(}0.75{txt:)}}      0.01    {ralign 9:{txt:(}0.35{txt:)}}      8.90**  {ralign 9:{txt:(}3.51{txt:)}}{txt}
+{txt}children~y{res}      1.11*** {ralign 9:{txt:(}0.06{txt:)}}      1.01*** {ralign 9:{txt:(}0.07{txt:)}}      0.63**  {ralign 9:{txt:(}0.29{txt:)}}      7.26*** {ralign 9:{txt:(}2.66{txt:)}}{txt}
+{txt}age_hhh   {res}      0.01*** {ralign 9:{txt:(}0.00{txt:)}}      0.01*** {ralign 9:{txt:(}0.00{txt:)}}      0.01*** {ralign 9:{txt:(}0.00{txt:)}}      0.01*** {ralign 9:{txt:(}0.00{txt:)}}{txt}
+{txt}edu_hhh   {res}      0.05*** {ralign 9:{txt:(}0.00{txt:)}}      0.06*** {ralign 9:{txt:(}0.00{txt:)}}      0.05*** {ralign 9:{txt:(}0.00{txt:)}}      0.06*** {ralign 9:{txt:(}0.01{txt:)}}{txt}
+{txt}trader_hhh{res}      0.20*** {ralign 9:{txt:(}0.05{txt:)}}      0.22*** {ralign 9:{txt:(}0.05{txt:)}}      0.20*** {ralign 9:{txt:(}0.05{txt:)}}      0.24*** {ralign 9:{txt:(}0.06{txt:)}}{txt}
+{txt}dep_ratio {res}     -1.26*** {ralign 9:{txt:(}0.09{txt:)}}     -1.06*** {ralign 9:{txt:(}0.12{txt:)}}     -1.27*** {ralign 9:{txt:(}0.09{txt:)}}     -1.05*** {ralign 9:{txt:(}0.13{txt:)}}{txt}
+{txt}log_land  {res}      0.16*** {ralign 9:{txt:(}0.04{txt:)}}      0.14*** {ralign 9:{txt:(}0.04{txt:)}}      0.16*** {ralign 9:{txt:(}0.04{txt:)}}      0.14*** {ralign 9:{txt:(}0.05{txt:)}}{txt}
+{txt}poorest_~e{res}     -0.21*** {ralign 9:{txt:(}0.05{txt:)}}     -0.19*** {ralign 9:{txt:(}0.05{txt:)}}     -0.21*** {ralign 9:{txt:(}0.05{txt:)}}     -0.19*** {ralign 9:{txt:(}0.05{txt:)}}{txt}
+{txt}richest_~e{res}      0.16*** {ralign 9:{txt:(}0.04{txt:)}}      0.14*** {ralign 9:{txt:(}0.04{txt:)}}      0.16*** {ralign 9:{txt:(}0.04{txt:)}}      0.13*** {ralign 9:{txt:(}0.05{txt:)}}{txt}
+{txt}10.dvcode {res}      0.00    {ralign 9:{txt:(}.{txt:)}}      0.00    {ralign 9:{txt:(}.{txt:)}}      0.00    {ralign 9:{txt:(}.{txt:)}}      0.00    {ralign 9:{txt:(}.{txt:)}}{txt}
+{txt}20.dvcode {res}      0.33*** {ralign 9:{txt:(}0.08{txt:)}}      0.39*** {ralign 9:{txt:(}0.08{txt:)}}      0.33*** {ralign 9:{txt:(}0.08{txt:)}}      0.38*** {ralign 9:{txt:(}0.09{txt:)}}{txt}
+{txt}30.dvcode {res}      0.15**  {ralign 9:{txt:(}0.07{txt:)}}      0.17**  {ralign 9:{txt:(}0.08{txt:)}}      0.15**  {ralign 9:{txt:(}0.07{txt:)}}      0.14*   {ralign 9:{txt:(}0.08{txt:)}}{txt}
+{txt}40.dvcode {res}     -0.12    {ralign 9:{txt:(}0.09{txt:)}}     -0.11    {ralign 9:{txt:(}0.09{txt:)}}     -0.12    {ralign 9:{txt:(}0.09{txt:)}}     -0.09    {ralign 9:{txt:(}0.09{txt:)}}{txt}
+{txt}50.dvcode {res}     -0.12    {ralign 9:{txt:(}0.08{txt:)}}     -0.11    {ralign 9:{txt:(}0.09{txt:)}}     -0.12    {ralign 9:{txt:(}0.08{txt:)}}     -0.18*   {ralign 9:{txt:(}0.09{txt:)}}{txt}
+{txt}55.dvcode {res}     -0.29*** {ralign 9:{txt:(}0.09{txt:)}}     -0.35*** {ralign 9:{txt:(}0.10{txt:)}}     -0.29*** {ralign 9:{txt:(}0.09{txt:)}}     -0.32*** {ralign 9:{txt:(}0.10{txt:)}}{txt}
+{txt}60.dvcode {res}     -0.19**  {ralign 9:{txt:(}0.08{txt:)}}     -0.10    {ralign 9:{txt:(}0.09{txt:)}}     -0.19**  {ralign 9:{txt:(}0.08{txt:)}}     -0.13    {ralign 9:{txt:(}0.09{txt:)}}{txt}
+{txt}0.childr~e{res}                                                    0.00    {ralign 9:{txt:(}.{txt:)}}      0.00    {ralign 9:{txt:(}.{txt:)}}{txt}
+{txt}1.childr~e{res}                                                    0.63*   {ralign 9:{txt:(}0.37{txt:)}}     -8.14**  {ralign 9:{txt:(}3.50{txt:)}}{txt}
+{txt}_cons     {res}      6.87*** {ralign 9:{txt:(}0.17{txt:)}}      5.13*** {ralign 9:{txt:(}0.64{txt:)}}      7.27*** {ralign 9:{txt:(}0.30{txt:)}}      0.45    {ralign 9:{txt:(}2.72{txt:)}}{txt}
+{txt}{hline 102}
+{txt}N         {res}   4465.00                4381.00                4465.00                4381.00             {txt}
+{txt}Weak ide~n{res}                            57.04                                         15.19             {txt}
+{txt}Over ide~n{res}                             0.54                                          0.31             {txt}
+{txt}Endogenity{res}                             0.00                                          0.01             {txt}
+{txt}{hline 102}
+{txt}Standard errors in parentheses
+{txt}* p<0.10, ** p<0.05, *** p<0.01
+
+{com}. 
+{txt}end of do-file
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}/Users/satwikav/Desktop/results.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res} 8 Mar 2022, 12:12:58
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
