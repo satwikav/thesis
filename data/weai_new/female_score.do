@@ -479,17 +479,27 @@ assert ci == ci_old
 
 
 
-
-
+//Pie chart showing contribution of each indicator 
 use "/Users/satwikav/Documents/GitHub/thesis/data/weai_new/female_score.dta",clear
-label var feelinputdecagr "input in prod decisions"
-label var raiprod_any "autonomy in prod"
-label var jown_count "asset ownership"
-label var jrightanyagr "rights over assets"
-label var credjanydec_any "credit decisions"
-label var incdec_count "income use"
-label var groupmember_any "group membership"
-label var speakpublic_any "public speaking"
-label var leisuretime "leisure time"
-label var npoor_z105 "workload"
-graph pie feelinputdecagr raiprod_any jown_count jrightanyagr credjanydec_any incdec_count groupmember_any speakpublic_any leisuretime npoor_z105, plabel(_all percent, size(*0.9) color(white)) sort descending 
+label var feelinputdecagr "Input in productive decisions"
+label var raiprod_any "Autonomy in production"
+label var jown_count "Ownership of assets"
+label var jrightanyagr "Purchase/sale/transter of assets"
+label var credjanydec_any "Access to and decisions on credit"
+label var incdec_count "Control over use of income"
+label var groupmember_any "Group member"
+label var speakpublic_any "Speaking in public"
+label var leisuretime "Leisure"
+label var npoor_z105 "Workload"
+graph pie feelinputdecagr raiprod_any jown_count jrightanyagr credjanydec_any incdec_count groupmember_any speakpublic_any leisuretime npoor_z105, sort descending ///
+pie(1,color("55 70 90")) pie(2,color("117 71 71")) ///
+pie(3,color("98 113 78")) pie(4,color("149 145 179")) ///
+pie(5,color("198 193 159")) pie(6,color("76 104 100")) ///
+pie(7,color("149 136 105")) pie(8,color("180 164 162")) ///
+pie(9,color("242 211 132")) pie(10,color("222 229 231"))  ///
+plabel(_all percent, color(white) size(small) format(%4.0g) gap(5)) /// 
+legend(color(black) region(lcolor(white)) size(small)) ///
+graphregion(fcolor(white))
+
+
+

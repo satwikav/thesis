@@ -496,8 +496,8 @@ eststo: quietly ivreg2 waz06 age_child age_2_child girl_child sibling age_mother
 esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
 
 est clear  // clear the stored estimates
-eststo: quietly reg MDDS empw_female age_child girl_child sibling age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother age_2_child, vce(robust)
-eststo: quietly ivreg2 MDDS age_child girl_child sibling age_2_child age_female_resp edu_female_resp dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode age_2_mother (empw_female = mobility marr_choice),robust endog (empw_female)
+eststo: quietly reg MDDS empw_female age_child age_2_child girl_child sibling age_mother age_2_mother edu_mother dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode, vce(robust)
+eststo: quietly ivreg2 MDDS age_child age_2_child girl_child sibling age_mother age_2_mother edu_mother dep_ratio log_land trader_hhh dist_shop FD poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
 esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
   
 est clear  
@@ -505,7 +505,7 @@ eststo: quietly reg log_inv empw_female prop_girl_child prop_school_child childr
 eststo: quietly ivreg2 log_inv prop_girl_child prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
 esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
 
-//remove prop girls
+/*remove prop girls
 est clear  
 eststo: quietly reg log_inv empw_female girl_child_hh prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
 eststo: quietly ivreg2 log_inv girl_child_hh prop_school_child children age_female_resp edu_female_resp age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)

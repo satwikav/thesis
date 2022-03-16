@@ -497,7 +497,7 @@ est clear
 eststo: quietly reg log_inv empw_female children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
 eststo: quietly ivreg2 log_inv children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
 eststo: quietly reg log_inv empw_female children_dummy c.empw_female#children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode, vce(robust)
-eststo: quietly ivreg2 log_inv children_dummy c.empw_female#children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female = mobility marr_choice),robust endog (empw_female)
+eststo: quietly ivreg2 log_inv children_dummy c.empw_female#children_dummy age_hhh edu_hhh trader_hhh dep_ratio log_land poorest_tercile richest_tercile i.dvcode (empw_female c.empw_female#children_dummy = mobility marr_choice),robust endog (empw_female c.empw_female#children_dummy)
 esttab, stat(N widstat jp estatp, labels("N" "Weak identification" "Over identification" "Endogenity")) b(2) se(2) ar2 star(* 0.10 ** 0.05 *** 0.01) wide compress
 
 /*remove prop girls
